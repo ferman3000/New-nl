@@ -16,7 +16,12 @@
         .accordion-link.active-link {
             font-weight: bold;
             color: var(--accent, #c5a059);
-            /* Usa tu color dorado */
+        }
+
+        /* Aseguramos que la transición del acordeón sea suave */
+        .accordion-content {
+            transition: max-height 0.3s ease-out, padding 0.3s ease;
+            overflow: hidden;
         }
     </style>
 </head>
@@ -186,11 +191,34 @@
     <script>
         document.addEventListener("DOMContentLoaded", function () {
 
-            // 1. Elementos
+            /* =========================================
+               PARTE 1: LÓGICA DEL ACORDEÓN (ABRIR/CERRAR)
+               ========================================= */
+            const accHeaders = document.querySelectorAll('.accordion-header');
+
+            accHeaders.forEach(header => {
+                header.addEventListener('click', function () {
+                    // 1. Alternar la clase 'active' en el botón que se tocó
+                    this.classList.toggle('active');
+
+                    // 2. Controlar el panel que le sigue (el contenido)
+                    const content = this.nextElementSibling;
+
+                    // Si tiene la clase active, le damos altura. Si no, lo colapsamos.
+                    if (this.classList.contains('active')) {
+                        content.style.maxHeight = content.scrollHeight + "px";
+                    } else {
+                        content.style.maxHeight = null;
+                    }
+                });
+            });
+
+            /* =========================================
+               PARTE 2: CARGA DINÁMICA DE CONTENIDO
+               ========================================= */
             const links = document.querySelectorAll('.accordion-link');
             const contentArea = document.getElementById('dynamic-content');
 
-            // 2. Función "Cerebro" que carga los archivos HTML
             async function loadContent(pageName) {
                 // Efecto visual: baja la opacidad mientras carga
                 contentArea.style.opacity = '0.5';
@@ -227,7 +255,7 @@
                 }
             }
 
-            // 3. Asignar el evento CLICK a cada enlace
+            // Asignar el evento CLICK a cada enlace interno
             links.forEach(link => {
                 link.addEventListener('click', function (e) {
                     e.preventDefault(); // Evita que la página salte
@@ -236,8 +264,7 @@
                 });
             });
 
-            // 4. Cargar la primera página automáticamente al entrar
-            // Asegúrate de crear content/personal-injury.html
+            // Cargar la primera página automáticamente al entrar
             loadContent('personal-injury');
         });
     </script>
